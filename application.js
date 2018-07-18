@@ -1,35 +1,47 @@
+// App Dynamics code. See documentation for keys/naming conventions
+if ((process.env.FH_ENV === "ist-prod" || process.env.ENABLE_APPDYNAMICS === "true") && process.env.APPD_ACCESS_KEY) {
+    require("appdynamics").profile({
+        controllerHostName: 'bp.saas.appdynamics.com',
+        controllerPort: 443,
+        controllerSslEnabled: true,
+        libagent: true,
+        accountName: 'bp',
+        accountAccessKey: process.env.APPD_ACCESS_KEY,
+        applicationName: '<APPLICATION NAME>',
+        tierName: '<TIER NAME>',
+        nodeName: '<NODE NAME>'
+    });
+}
 var mbaasApi = require('fh-mbaas-api');
 var express = require('express');
 var mbaasExpress = mbaasApi.mbaasExpress();
 var cors = require('cors');
+var Logger = require('fh-logger-helper');
+var appDetail = require('./package.json');
 
-// list the endpoints which you want to make securable here
+// list the endpoints which you want to make securable via RHMAP here
 var securableEndpoints;
 securableEndpoints = ['/hello'];
 
 var app = express();
+// remove the 'x-powered-by: express header'
+app.disable('x-powered-by');
 
 // Enable CORS for all requests
 app.use(cors());
+app.use(function(req, res, next) {
+    console.log("Adding")
+    res.header('Api-Version', appDetail.version);
+    next();
+});
 
 // Note: the order which we add middleware to Express here is important!
 app.use('/sys', mbaasExpress.sys(securableEndpoints));
 app.use('/mbaas', mbaasExpress.mbaas);
 
-/* uncomment this code if you want to use $fh.auth in the app preview
- * localAuth is only used for local development. 
- * If the app is deployed on the platform, 
- * this function will be ignored and the request will be forwarded 
- * to the platform to perform authentication.
-
-app.use('/box', mbaasExpress.auth({localAuth: function(req, cb){
-  return cb(null, {status:401, body: {"message": "bad request"}});
-}}));
-
-or
-
-app.use('/box', mbaasExpress.core({localAuth: {status:401, body: {"message": "not authorised”}}}));
-*/
+app.use(require('express-api-check')());
+// Everything below this will require authentication
+app.use(require('rhmap-aad-auth')());
 
 // allow serving of static files from the public directory
 app.use(express.static(__dirname + '/public'));
@@ -38,6 +50,8 @@ app.use(express.static(__dirname + '/public'));
 app.use(mbaasExpress.fhmiddleware());
 
 app.use('/hello', require('./lib/hello.js')());
+app.use('/proxy', require('./lib/proxy.js')());
+
 
 // Important that this is last!
 app.use(mbaasExpress.errorHandler());
@@ -45,5 +59,5 @@ app.use(mbaasExpress.errorHandler());
 var port = process.env.FH_PORT || process.env.OPENSHIFT_NODEJS_PORT || 8001;
 var host = process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
 app.listen(port, host, function() {
-  console.log("App started at: " + new Date() + " on port: " + port); 
+    Logger.sys(appDetail.name, appDetail.version, "started at: " + new Date() + " on port: " + port);
 });
