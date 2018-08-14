@@ -17,7 +17,6 @@ var express = require('express');
 var mbaasExpress = mbaasApi.mbaasExpress();
 var cors = require('cors');
 var Logger = require('fh-logger-helper');
-var request = require('request');
 var appDetail = require('./package.json');
 
 // list the endpoints which you want to make securable via RHMAP here
