@@ -35,14 +35,14 @@ app.use(function(req, res, next) {
     res.header('Api-Version', appDetail.version);
     next();
 });
-process.env.AZURE_AUTH = "https://rhmap.global.bp.com/router/dev/nodejs-svcazureadistdp3gm-rhmap-rhmap-ist-ist-dev/auth/login"
+
 // Note: the order which we add middleware to Express here is important!
 app.use('/sys', mbaasExpress.sys(securableEndpoints));
 app.use('/mbaas', mbaasExpress.mbaas);
 
 app.use(require('express-api-check')());
 app.get('/login', function(req, res) {
-    return res.redirect(process.env.AZURE_AUTH+"?state=http://localhost:8001/login/success");
+    return res.redirect(process.env.AZURE_AUTH+"?state=https://rhmap.global.bp.com/router/dev/nodejs-catemplateistdgdpd-rhmap-rhmap-ist-ist-dev/login/success");
 });
 app.get('/login/success', function(req, res) {
     console.log(req.cookies['X-FH-Session'])
