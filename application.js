@@ -40,7 +40,7 @@ app.use('/mbaas', mbaasExpress.mbaas);
 
 app.use(require('express-api-check')());
 app.use('/login', function(req, res) {
-    return req.redirect(process.env.AZURE_AUTH);
+    return res.redirect(process.env.AZURE_AUTH);
 });
 // Everything below this will require authentication
 app.use(require('rhmap-aad-auth')());
