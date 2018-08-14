@@ -17,6 +17,7 @@ var express = require('express');
 var mbaasExpress = mbaasApi.mbaasExpress();
 var cors = require('cors');
 var Logger = require('fh-logger-helper');
+var request = require('request');
 var appDetail = require('./package.json');
 
 // list the endpoints which you want to make securable via RHMAP here
@@ -30,7 +31,6 @@ app.disable('x-powered-by');
 // Enable CORS for all requests
 app.use(cors());
 app.use(function(req, res, next) {
-    console.log("Adding")
     res.header('Api-Version', appDetail.version);
     next();
 });
@@ -40,6 +40,9 @@ app.use('/sys', mbaasExpress.sys(securableEndpoints));
 app.use('/mbaas', mbaasExpress.mbaas);
 
 app.use(require('express-api-check')());
+app.use('/login', function(req, res) {
+    return req.redirect(process.env.AZURE_AUTH);
+});
 // Everything below this will require authentication
 app.use(require('rhmap-aad-auth')());
 
