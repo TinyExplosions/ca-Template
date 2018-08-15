@@ -38,7 +38,7 @@ app.use('/sys', mbaasExpress.sys(securableEndpoints));
 app.use('/mbaas', mbaasExpress.mbaas);
 
 app.use(require('express-api-check')());
-app.get('/login', function(req, res) {
+app.post('/login', function(req, res) {
     return res.redirect(process.env.AZURE_AUTH);
 });
 
