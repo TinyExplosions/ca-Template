@@ -29,12 +29,10 @@ app.disable('x-powered-by');
 
 // Enable CORS for all requests
 app.use(cors());
-app.use(cookieParser());
 app.use(function(req, res, next) {
     res.header('Api-Version', appDetail.version);
     next();
 });
-
 // Note: the order which we add middleware to Express here is important!
 app.use('/sys', mbaasExpress.sys(securableEndpoints));
 app.use('/mbaas', mbaasExpress.mbaas);
