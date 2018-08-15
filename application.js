@@ -16,7 +16,6 @@ var mbaasApi = require('fh-mbaas-api');
 var express = require('express');
 var mbaasExpress = mbaasApi.mbaasExpress();
 var cors = require('cors');
-var cookieParser = require('cookie-parser');
 var Logger = require('fh-logger-helper');
 var appDetail = require('./package.json');
 
@@ -42,12 +41,9 @@ app.use('/mbaas', mbaasExpress.mbaas);
 
 app.use(require('express-api-check')());
 app.get('/login', function(req, res) {
-    return res.redirect(process.env.AZURE_AUTH+"?state=https://rhmap.global.bp.com/router/dev/nodejs-catemplateistdgdpd-rhmap-rhmap-ist-ist-dev/login/success");
+    return res.redirect(process.env.AZURE_AUTH);
 });
-app.get('/login/success', function(req, res) {
-    console.log(req.cookies['X-FH-Session'])
-    res.send("ok: "+req.cookies['X-FH-Session']);
-});
+
 // Everything below this will require authentication
 app.use(require('rhmap-aad-auth')());
 
